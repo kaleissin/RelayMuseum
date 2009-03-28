@@ -1,11 +1,34 @@
 {% extends "base.html" %}
 {% block submenu %}
 <ul>
-    <li><b>All</b></li>
+    <li><a href="/relay/">All</a></li>
+    <li><a href="/relay/{{ relay.slug }}/">{{ relay }}</a></li>
+    {% if relay.rings.count %}
+    <li><hr /></li>
+    <li><b>{{ ring }}</b></li>
+    {% endif %}
+    <li><hr /></li>
+    <li><a href="..">List</a></li>
+    <li><a href="../?smooth">Smooth</a></li>
+    <li><hr /></li>
+    {% if object.followed %}
+    <li><a href="/relay/{{ relay.slug }}/{{ ring.slug }}/{{ object.followed.id }}/">Previous</a></li>
+    {% endif %}
+    <li><b>{{ object }}</b></li>
+    {% if object.follows.all %}
+    <li><a href="/relay/{{ relay.slug }}/{{ ring.slug }}/{{ object.follows.all.0.id }}/">Next</a></li>
+    {% endif %}
 </ul>
 {% endblock submenu %}
 {% block content %}
-    <h2>{{ object }}</h2>
+    <h2>{% if object.followed %}
+    <a href="/relay/{{ relay.slug }}/{{ ring.slug }}/{{ object.followed.id }}/">&lt; {{ object.followed }}</a> 
+    {% endif %}
+    {{ object }}  
+    {% if object.follows.all %}
+    <a href="/relay/{{ relay.slug }}/{{ ring.slug }}/{{ object.follows.all.0.id }}/"> {{ object.follows.all.0 }} &gt;</a>
+    {% endif %}
+    </h2>
     <table>
         <tr>
             <th></th>
@@ -17,11 +40,11 @@
         </tr>
         <tr>
             <th>Torch:</th>
-            <td><pre>{{ object.torch }}</pre></td>
+            <td><pre>{{ object.torch|wordwrap:"80" }}</pre></td>
         </tr>
         <tr>
             <th>Smooth translation:</th>
-            <td><pre>{{ object.smooth_translation }}</pre></td>
+            <td><pre>{{ object.smooth_translation|wordwrap:"80" }}</pre></td>
         </tr>
     </table>
 
