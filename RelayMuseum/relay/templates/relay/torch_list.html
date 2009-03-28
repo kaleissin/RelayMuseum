@@ -11,12 +11,13 @@
 </ul>
 {% endblock submenu %}
 {% block content %}
-    <ul>
+    <table>
         {% for object in object_list %}
-        <li class="{% cycle odd,even %}">
-            <a href="/relay/{{ relay.slug }}/{{ ring.slug }}/{{ object.id }}/">{{ object }}</a>
-        </li>
+        <tr class="{% cycle odd,even %}">
+            <td class="right">{{ object.pos }}</td>
+            <td><a href="/relay/{{ relay.slug }}/{{ ring.slug }}/{{ object.id }}/">{{ object }}</a></td>
+        </tr>
         {% endfor %}
-    </ul>
+    </table>
 
 {% endblock content %}
