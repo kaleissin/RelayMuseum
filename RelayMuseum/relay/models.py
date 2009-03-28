@@ -88,7 +88,7 @@ class Ring(models.Model):
             )
     relay = models.ForeignKey(Relay, related_name='rings')
     ring_master = models.ForeignKey(Participant, blank=True, null=True, related_name='ring_mastering')
-    name = models.CharField(max_length=10)
+    name = models.CharField(max_length=10, default='_')
     slug = models.SlugField(blank=True, null=True, editable=False)
     subtype = models.CharField(max_length=20, 
         choices=RING_SUBTYPES,
