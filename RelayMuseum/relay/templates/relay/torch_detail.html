@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block submenu %}
+<ul>
+    <li><b>All</b></li>
+</ul>
+{% endblock submenu %}
+{% block content %}
+    <h2>{{ object }}</h2>
+    <table>
+        <tr>
+            <th></th>
+            <td></td>
+        </tr>
+        <tr>
+            <th>Translated by:</th>
+            <td>{{ object.participant }}</td>
+        </tr>
+        <tr>
+            <th>Torch:</th>
+            <td><pre>{{ object.torch }}</pre></td>
+        </tr>
+        <tr>
+            <th>Smooth translation:</th>
+            <td><pre>{{ object.smooth_translation }}</pre></td>
+        </tr>
+    </table>
+
+{% endblock content %}

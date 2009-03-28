@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block submenu %}
+<ul>
+    <li><a href="..">All</a></li>
+    <li><b>{{ object }}</b></li>
+{% if object.rings.count %}
+</ul>
+<hr />
+<ul>
+    {% ifequal object.rings.count 1 %}
+    <li><a href="{{ object.rings.0.slug }}">{{ object.rings.0 }}</a></li>
+    {% else %}
+    <ul>
+    {% for ring in object.rings.all %}
+    {% if ring.torches.count %}
+    <li><a href="{{ ring.slug }}">{{ ring }}</a></li>
+    {% endif %}
+    {% endfor %}
+    </ul>
+    {% endifequal %}
+{% endif %}
+</ul>
+{% endblock submenu %}
+{% block content %}
+    <h2>{{ object }}</h2>
+    {% ifequal object.subtype inverse %}
+    <h3>An inverse relay</h3>
+    {% endifequal %}
+    <table>
+        <tr>
+            <th></th>
+            <td></td>
+        </tr>
+        <tr>
+            <th>Started:</th>
+            <td>{{ object.start|date:"M Y" }}</td>
+        </tr>
+        <tr>
+            <th>Ended:</th>
+            <td>{{ object.end|date:"M Y" }}</td>
+        </tr>
+        <tr>
+            <th>Hosted by:</th>
+            <td>{{ object.relay_master }}</td>
+        </tr>
+    </table>
+    <ul>
+    {% for ring in object.rings.all %}
+        {% if ring.torches.count %}
+        <li class="{% cycle odd,even %}">
+        <a href="/relay/{{ object.slug }}/{{ ring.slug }}/">{{ ring }}</a> ({{ ring.torches.count }} torch{{ ring.torches.count|pluralize:"es" }})
+        {% if ring.torches.count %}
+        <p>{% for torch in ring.torches.all %}
+        <a href="./{{ torch.ring.slug }}/{{ torch.id }}">{{ torch.language }}</a> 
+        {% endfor %}</p>
+        {% endif %}
+        </li>
+        {% endif %}
+    {% endfor %}
+    </ul>
+
+{% endblock content %}

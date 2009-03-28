@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block submenu %}
+<ul>
+    <li><b>All</b></li>
+</ul>
+{% endblock submenu %}
+{% block content %}
+    <ul>
+        {% for object in object_list %}
+        <li class="{% cycle odd,even %}">
+            <a href="/relay/{{ object.slug }}/">{{ object }}</a>
+            <ul>
+            {% for ring in object.rings.all %}
+                <li><a href="/relay/{{ object.slug }}/{{ ring.slug }}/">{{ ring }}</a> ({{ ring.torches.count }} torch(es))</li>
+            {% endfor %}
+            </ul>
+        </li>
+        {% endfor %}
+    </ul>
+
+{% endblock content %}
