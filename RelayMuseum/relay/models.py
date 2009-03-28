@@ -3,6 +3,7 @@ from django.template.defaultfilters import slugify
 
 from cals.models import Language as CalsLanguage
 from cals.models import User as CalsUser
+from translation.models import get_interlinear
 
 def re_slugify(queryset):
     for object in queryset.objects.all():
@@ -108,6 +109,11 @@ class Ring(models.Model):
         super(Ring, self).save(*args, **kwargs)
 
 class Torch(models.Model):
+    INTERLINEAR_FORMATS = (
+            ('monospace', 'WYSIWYG monospace'),
+            ('leipzig', 'Leipzig Glossing Rules'),
+    )
+
     followed = models.ForeignKey('Torch', null=True, blank=True, related_name='follows')
     relay = models.ForeignKey(Relay, related_name='torches')
     ring = models.ForeignKey(Ring, blank=True, null=True, related_name='torches')
@@ -130,6 +136,9 @@ class Torch(models.Model):
     mini_grammar = models.TextField(
             blank=True, null=True,
             help_text='Mini grammar covering the phenomena in the torch')
+    interlinear = models.TextField('Interlinear', blank=True, null=True, default='', db_column='il_text')
+    il_xhtml = models.TextField('Interlinear, formatted', blank=True, null=True, default='', db_column='il_xhtml', editable=False)
+    il_format = models.CharField('Interlinear format', max_length=20, choices=INTERLINEAR_FORMATS, blank=True, default='monospace')
 
     class Meta:
         verbose_name_plural = 'torches'
@@ -140,7 +149,12 @@ class Torch(models.Model):
         return u'%s by %s' % (self.language.name, self.participant.name)
 
     def save(self, *args, **kwargs):
+        if self.interlinear.strip():
+            self.il_xhtml = get_interlinear(self)
         # Denormalization
         if not self.relay:
             self.relay = self.ring.relay
         super(Torch, self).save(*args, **kwargs)
+
+    def get_interlinear(self):
+        return get_interlinear(self)
