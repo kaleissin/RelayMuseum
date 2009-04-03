@@ -8,11 +8,13 @@ from relay.models import *
 class RingInline(admin.TabularInline):
     model = Ring
     fk_name = 'relay'
-    max_num = 3
+    max_num = 6
 
 class RelayAdmin(admin.ModelAdmin):
     inlines = [RingInline,]
     ordering = ['pos', 'name']
+    list_display = ('pos', 'name')
+    list_display_links = ('pos', 'name')
 admin.site.register(Relay, RelayAdmin)
 
 class TorchAdmin(admin.ModelAdmin):

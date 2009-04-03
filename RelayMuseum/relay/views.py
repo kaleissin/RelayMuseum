@@ -20,19 +20,34 @@ def show_ring(request, *args, **kwargs):
 def torch_list(request, *args, **kwargs):
     relay = Relay.objects.get(slug=kwargs['relay'])
     ring = Ring.objects.get(relay=relay, slug=kwargs['ring'])
-    queryset = Torch.objects.filter(ring=ring)
+    queryset = Torch.objects.filter(ring=ring).order_by('pos')
     extra_context = {
         'me': 'relay',
         'ring': ring,
         'relay': relay,
     }
+    return object_list(request, queryset, extra_context=extra_context)
 
+def relay_list(request, *args, **kwargs):
+    queryset = Relay.objects.order_by('pos')
+    extra_context = {
+        'me': 'relay',
+    }
+    return object_list(request, queryset, extra_context=extra_context)
+
+def participant_list(request, *args, **kwargs):
+    queryset = Participant.objects.all()
+    extra_context = {
+        'me': 'participant',
+        'relay_masters': queryset.filter(relay_mastering__isnull=False).distinct(),
+        'ring_masters': queryset.filter(ring_mastering__isnull=False).distinct(),
+    }
     return object_list(request, queryset, extra_context=extra_context)
 
 def torch_smooth_translation_list(request, *args, **kwargs):
     relay = Relay.objects.get(slug=kwargs['relay'])
     ring = Ring.objects.get(relay=relay, slug=kwargs['ring'])
-    queryset = Torch.objects.filter(ring=ring)
+    queryset = Torch.objects.filter(ring=ring).order_by('pos')
     extra_context = {
         'me': 'relay',
         'ring': ring,
@@ -43,6 +58,19 @@ def torch_smooth_translation_list(request, *args, **kwargs):
             queryset, 
             template_name='relay/ring_smooth_translation.html',
             extra_context=extra_context)
+
+def relay_detail(request, *args, **kwargs):
+    relay = Relay.objects.get(slug=kwargs['slug'])
+    rings = Ring.objects.filter(relay=relay)
+    queryset = Relay.objects.all()
+    extra_context = {
+        'me': 'relay',
+        'rings': rings,
+        'num_rings': rings.count(),
+        'relay': relay,
+    }
+
+    return object_detail(request, queryset, object_id=relay.id, extra_context=extra_context)
 
 def torch_detail(request, *args, **kwargs):
     relay = Relay.objects.get(slug=kwargs['relay'])
@@ -62,14 +90,17 @@ def show_statistics(request, *args, **kwargs):
     num_participants = Participant.objects.count()
     num_relays = Relay.objects.count()
     num_rings = Ring.objects.count()
-    num_torches = Torch.objects.count()
+    num_torches = sum(relay.num_torches for relay in Relay.objects.filter(missing=False))
 
-    avg_rings_per_relay = num_rings / float(num_relays)
-    avg_torches_per_ring = float(num_torches) / num_rings
+    avg_rings_per_relay = (num_rings - 1) / float(num_relays - Relay.objects.filter(missing=True).count())
+    avg_torches_per_ring = float(num_torches) / num_rings - 1
     avg_torches_per_relay = float(num_torches) / num_relays
     avg_participants_per_language = num_participants / float(num_langs)
     avg_calslanguages = Language.objects.filter(cals_language__isnull=False).count() / float(num_langs) * 100
     avg_calsparticipants = Participant.objects.filter(cals_user__isnull=False).count() / float(num_participants) * 100
+
+    all_missing_torches = sum(relay.missing_torches for relay in Relay.objects.all())
+    all_missing_relays = Relay.objects.filter(missing=True)
 
     langstats = {
             'num': num_langs,
@@ -86,9 +117,14 @@ def show_statistics(request, *args, **kwargs):
             'avg_torches': avg_torches_per_relay,
             'avg_torches_per_ring': avg_torches_per_ring,
     }
+    missingstats = {
+            'torches': all_missing_torches,
+            'relays': all_missing_relays,
+    }
     data = {'relay': relaystats,
             'lang': langstats,
             'participant': participantstats,
+            'missing': missingstats,
             'me': 'statistics',
             }
 

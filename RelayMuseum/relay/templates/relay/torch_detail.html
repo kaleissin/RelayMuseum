@@ -5,7 +5,7 @@
     <li><a href="/relay/{{ relay.slug }}/">{{ relay }}</a></li>
     {% if relay.rings.count %}
     <li><hr /></li>
-    <li><b>{{ ring }}</b></li>
+    <li><b>{{ ring.name }}</b></li>
     {% endif %}
     <li><hr /></li>
     <li><a href="..">List</a></li>
@@ -14,7 +14,7 @@
     {% if object.followed %}
     <li><a href="/relay/{{ relay.slug }}/{{ ring.slug }}/{{ object.followed.id }}/">Previous</a></li>
     {% endif %}
-    <li><b>{{ object }}</b></li>
+    <li><b>{{ object.simple_name }}</b></li>
     {% if object.follows.all %}
     <li><a href="/relay/{{ relay.slug }}/{{ ring.slug }}/{{ object.follows.all.0.id }}/">Next</a></li>
     {% endif %}
@@ -22,11 +22,11 @@
 {% endblock submenu %}
 {% block content %}
     <h2>{% if object.followed %}
-    <a href="/relay/{{ relay.slug }}/{{ ring.slug }}/{{ object.followed.id }}/">&lt; {{ object.followed }}</a> 
+    <a href="/relay/{{ relay.slug }}/{{ ring.slug }}/{{ object.followed.id }}/">&lt; {{ object.followed.simple_name }}</a> 
     {% endif %}
-    {{ object }}  
+    {{ object.simple_name }}  
     {% if object.follows.all %}
-    <a href="/relay/{{ relay.slug }}/{{ ring.slug }}/{{ object.follows.all.0.id }}/"> {{ object.follows.all.0 }} &gt;</a>
+    <a href="/relay/{{ relay.slug }}/{{ ring.slug }}/{{ object.follows.all.0.id }}/"> {{ object.follows.all.0.simple_name }} &gt;</a>
     {% endif %}
     </h2>
     <table>
@@ -44,7 +44,43 @@
         </tr>
         <tr>
             <th>Smooth translation:</th>
+            {% if object.smooth_translation %}
             <td><pre>{{ object.smooth_translation|wordwrap:"80" }}</pre></td>
+            {% else %}
+            <td>Missing</td>
+            {% endif %}
+        </tr>
+        <tr>
+            <th>Translation of previous torch</th>
+            {% if object.translation_of_received %}
+            <td><pre>{{ object.translation_of_received|wordwrap:"80" }}</pre></td>
+            {% else %}
+            <td>Missing</td>
+            {% endif %}
+        </tr>
+        <tr>
+            <th>Interlinear</th>
+            {% if object.interlinear %}
+            <td><pre>{{ object.interlinear|wordwrap:"90" }}</pre></td>
+            {% else %}
+            <td>Missing</td>
+            {% endif %}
+        </tr>
+        <tr>
+            <th>Glossary/mini dictionary</th>
+            {% if object.mini_dictionary %}
+            <td><pre>{{ object.mini_dictionary|wordwrap:"80" }}</pre></td>
+            {% else %}
+            <td>Missing</td>
+            {% endif %}
+        </tr>
+        <tr>
+            <th>Grammar notes</th>
+            {% if object.mini_grammar %}
+            <td><pre>{{ object.mini_grammar|wordwrap:"80" }}</pre></td>
+            {% else %}
+            <td>Missing</td>
+            {% endif %}
         </tr>
     </table>
 

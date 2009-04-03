@@ -67,15 +67,19 @@
     {% endblock messages %}
 {% endblock header %}
     </div>
+    <div id="main">
+{% block content %}
+{% endblock content %}
+    </div>
+    <div id="subsection">
 {% block no_submenu %}
     <div id="submenu">
 {% block submenu %}
 {% endblock submenu %}
     </div>
 {% endblock no_submenu %}
-    <div id="main">
-{% block content %}
-{% endblock content %}
+{% block subsection %}
+{% endblock subsection %}
     </div>
     <div id="footer">
 {% block footer %}

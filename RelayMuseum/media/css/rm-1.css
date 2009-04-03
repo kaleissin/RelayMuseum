@@ -38,8 +38,11 @@ h3 { font-size: 1.25em; }
 
 .center { text-align: center }
 
-#submenu {
+#subsection {
     float: right;
+}
+
+#submenu {
     background: #edc;
     border: 1px solid #d2b400;
     color: #5e554d;
@@ -200,7 +203,18 @@ div#header, div#footer {
 pre { border: 1px solid #ccbbaa;
     padding: 1ex;
     background:  #fed}
-div#main { margin: 2em; }
+
+div#main { 
+    float: left;
+    margin: auto; 
+    padding: 1em;
+    min-width: 15ex;
+    max-width: 110ex;
+}
+
+#main table {
+    width: 95%;
+}
 
 #modifications td { padding-right: 2em; }
 

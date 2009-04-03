@@ -3,17 +3,15 @@
 <ul>
     <li><a href="..">All</a></li>
     <li><b>{{ object }}</b></li>
-{% if object.rings.count %}
-</ul>
-<hr />
-<ul>
-    {% ifequal object.rings.count 1 %}
-    <li><a href="{{ object.rings.0.slug }}">{{ object.rings.0 }}</a></li>
+{% if num_rings %}
+    <li><hr /></li>
+    {% ifequal num_rings 1 %}
+    <li><a href="{{ rings.0.slug }}">Torches</a></li>
     {% else %}
     <ul>
-    {% for ring in object.rings.all %}
+    {% for ring in rings %}
     {% if ring.torches.count %}
-    <li><a href="{{ ring.slug }}">{{ ring }}</a></li>
+    <li><a href="{{ ring.slug }}">{{ ring.name }}</a></li>
     {% endif %}
     {% endfor %}
     </ul>
@@ -28,27 +26,40 @@
     {% endifequal %}
     <table>
         <tr>
+            <th>Hosted by:</th>
+            <td>{{ object.relay_master }}</td>
+        </tr>
+        <tr>
             <th>Homepage:</th>
             <td><a href="{{ object.homepage }}">{{ object.homepage }}</a></td>
         </tr>
         <tr>
+            <th>Total number of torches:</th>
+            <td>{{ object.num_torches }}</td>
+        </tr>
+        <tr>
+            <th>Rings:</th>
+            <td>{{ object.rings.count }}</td>
+        </tr>
+        <tr>
             <th>Started:</th>
-            <td>{{ object.start|date:"M Y" }}</td>
+            <td>{{ object.start|date:"F Y" }}</td>
         </tr>
         <tr>
             <th>Ended:</th>
-            <td>{{ object.end|date:"M Y" }}</td>
+            <td>{{ object.end|date:"F Y" }}</td>
         </tr>
         <tr>
-            <th>Hosted by:</th>
-            <td>{{ object.relay_master }}</td>
+            <th>Missing:</th>
+            <td>{{ object.missing|yesno }}</td>
         </tr>
     </table>
+    {% ifnotequal num_rings 1 %}
     <ul>
-    {% for ring in object.rings.all %}
+    {% for ring in rings %}
         {% if ring.torches.count %}
         <li class="{% cycle odd,even %}">
-        <a href="/relay/{{ object.slug }}/{{ ring.slug }}/">{{ ring }}</a> ({{ ring.torches.count }} torch{{ ring.torches.count|pluralize:"es" }})
+        <a href="/relay/{{ object.slug }}/{{ ring.slug }}/">{{ ring.name }}</a> ({{ ring.torches.count }} torch{{ ring.torches.count|pluralize:"es" }})
         {% if ring.torches.count %}
         <p>{% for torch in ring.torches.all %}
         <a href="./{{ torch.ring.slug }}/{{ torch.id }}">{{ torch.language }}</a> 
@@ -58,5 +69,12 @@
         {% endif %}
     {% endfor %}
     </ul>
+    {% else %}
+    {% if rings.0.torches.count %}
+    <p>{% for torch in rings.0.torches.all %}
+    <a href="./{{ torch.ring.slug }}/{{ torch.id }}">{{ torch.language }}</a> 
+    {% endfor %}</p>
+    {% endif %}
+    {% endifnotequal %}
 
 {% endblock content %}
