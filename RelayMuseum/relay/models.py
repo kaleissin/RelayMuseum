@@ -110,6 +110,21 @@ class Relay(models.Model):
     def missing_torches(self):
         return self.num_torches - self.torches.count()
 
+    @property
+    def next(self):
+        try:
+            return Relay.objects.filter(pos__gt=self.pos).order_by('pos')[0]
+        except IndexError:
+            return None
+
+    @property
+    def prev(self):
+        try:
+            return Relay.objects.filter(pos__lt=self.pos).order_by('-pos')[0]
+        except IndexError:
+            return None
+
+
 class Ring(models.Model):
     RING_SUBTYPES = (
             ('standard', 'Standard'),
@@ -152,7 +167,7 @@ class Torch(models.Model):
             ('leipzig', 'Leipzig Glossing Rules'),
     )
 
-    followed = models.ForeignKey('Torch', null=True, blank=True, related_name='follows')
+    #followed = models.ForeignKey('Torch', null=True, blank=True, related_name='follows')
     relay = models.ForeignKey(Relay, related_name='torches')
     ring = models.ForeignKey(Ring, blank=True, null=True, related_name='torches')
     participant = models.ForeignKey(Participant, related_name='torches')
@@ -188,7 +203,7 @@ class Torch(models.Model):
         order_with_respect_to = 'ring'
 
     def __unicode__(self):
-        return u'%s ring %s: %s by %s' % (self.relay.name, self.ring.name, self.language.name, self.participant.name)
+        return u'%s by %s' % (self.language.name, self.participant.name)
 
     def save(self, *args, **kwargs):
         if self.interlinear.strip():
@@ -207,9 +222,23 @@ class Torch(models.Model):
                 self.ring = self.relay.rings.all()[0]
         super(Torch, self).save(*args, **kwargs)
 
+    @property
+    def next(self):
+        try:
+            return Torch.objects.exclude(pos=0).filter(ring=self.ring, relay=self.relay, pos__gt=self.pos).order_by('pos')[0]
+        except IndexError:
+            return None
+
+    @property
+    def prev(self):
+        try:
+            return Torch.objects.exclude(pos=0).filter(ring=self.ring, relay=self.relay, pos__lt=self.pos).order_by('-pos')[0]
+        except IndexError:
+            return None
+
     def get_interlinear(self):
         return get_interlinear(self)
 
     def simple_name(self):
-        return u'%s by %s' % (self.language.name, self.participant.name)
+        return self.__unicode__()
 

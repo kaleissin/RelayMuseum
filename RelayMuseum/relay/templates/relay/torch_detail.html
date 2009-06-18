@@ -11,22 +11,22 @@
     <li><a href="..">List</a></li>
     <li><a href="../?smooth">Smooth</a></li>
     <li><hr /></li>
-    {% if object.followed %}
-    <li><a href="/relay/{{ relay.slug }}/{{ ring.slug }}/{{ object.followed.id }}/">Previous</a></li>
+    {% if object.prev %}
+    <li><a href="/relay/{{ relay.slug }}/{{ ring.slug }}/{{ object.prev.id }}/">Previous</a></li>
     {% endif %}
     <li><b>{{ object.simple_name }}</b></li>
-    {% if object.follows.all %}
-    <li><a href="/relay/{{ relay.slug }}/{{ ring.slug }}/{{ object.follows.all.0.id }}/">Next</a></li>
+    {% if object.next %}
+    <li><a href="/relay/{{ relay.slug }}/{{ ring.slug }}/{{ object.next.id }}/">Next</a></li>
     {% endif %}
 </ul>
 {% endblock submenu %}
 {% block content %}
-    <h2>{% if object.followed %}
-    <a href="/relay/{{ relay.slug }}/{{ ring.slug }}/{{ object.followed.id }}/">&lt; {{ object.followed.simple_name }}</a> 
+    <h2>{% if object.prev %}
+    <a href="/relay/{{ relay.slug }}/{{ ring.slug }}/{{ object.prev.id }}/">&lt; {{ object.prev.simple_name }}</a> 
     {% endif %}
     {{ object.simple_name }}  
-    {% if object.follows.all %}
-    <a href="/relay/{{ relay.slug }}/{{ ring.slug }}/{{ object.follows.all.0.id }}/"> {{ object.follows.all.0.simple_name }} &gt;</a>
+    {% if object.next %}
+    <a href="/relay/{{ relay.slug }}/{{ ring.slug }}/{{ object.next.id }}/"> {{ object.next.simple_name }} &gt;</a>
     {% endif %}
     </h2>
     <table>

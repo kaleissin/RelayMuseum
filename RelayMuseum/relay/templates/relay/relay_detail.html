@@ -20,7 +20,9 @@
 </ul>
 {% endblock submenu %}
 {% block content %}
-    <h2>{{ object }}</h2>
+    <h2>{% if object.prev %}<a href="/relay/{{ object.prev.slug }}/">&lt; {{ object.prev }}</a>{% endif %}
+    {{ object }}
+    {% if object.next %}<a href="/relay/{{ object.next.slug }}/">{{ object.next }} &gt;</a>{% endif %}</h2>
     {% ifequal object.subtype inverse %}
     <h3>An inverse relay</h3>
     {% endifequal %}
