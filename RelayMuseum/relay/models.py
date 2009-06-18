@@ -87,6 +87,8 @@ class Relay(models.Model):
             choices=RELAY_SUBTYPES,
             default='standard')
     homepage = models.URLField(blank=True, null=True)
+    rules = models.TextField('Rules specific to this relay', blank=True, null=True)
+    notes = models.TextField('Additional notes', blank=True, null=True)
     pos = models.IntegerField('position', default=0, unique=True)
     missing = models.BooleanField(default=True)
     start = models.DateField(blank=True, null=True)

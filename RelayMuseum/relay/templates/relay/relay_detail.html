@@ -43,6 +43,18 @@
             <th>Rings:</th>
             <td>{{ object.rings.count }}</td>
         </tr>
+        {% if object.rules %}
+        <tr>
+            <th>Rules changes:</th>
+            <td>{{ object.rules }}</td>
+        </tr>
+        {% endif %}
+        {% if object.notes %}
+        <tr>
+            <th>Notes:</th>
+            <td>{{ object.notes }}</td>
+        </tr>
+        {% endif %}
         <tr>
             <th>Started:</th>
             <td>{{ object.start|date:"F Y" }}</td>
