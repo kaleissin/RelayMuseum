@@ -3,7 +3,9 @@ from django.template.defaultfilters import slugify
 
 from cals.models import Language as CalsLanguage
 from cals.models import User as CalsUser
-from translation.models import get_interlinear
+from translations.models import get_interlinear
+
+__all__ = ('Participant', 'Language', 'Ring', 'Torch', 'Relay', 'TorchFile')
 
 def re_slugify(queryset):
     for object in queryset.objects.all():
@@ -28,6 +30,7 @@ class Participant(models.Model):
     def save(self, *args, **kwargs):
         if not self.name and self.cals_user:
             self.name = self.cals_user.get_profile().display_name
+        self.slug = good_slugify(self)
         super(Participant, self).save(*args, **kwargs)
 
     def relays(self):
