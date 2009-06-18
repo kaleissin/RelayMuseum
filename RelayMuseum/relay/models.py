@@ -247,3 +247,31 @@ class Torch(models.Model):
     def simple_name(self):
         return self.__unicode__()
 
+class TorchFile(models.Model):
+    CATEGORIES = (
+            ('alttorch', 'Alternate version'),
+            ('recording', 'Recording'),
+            ('orthopgraphy', 'Native orthopgraphy'),
+    )
+
+    def upload_to(self, filename):
+        return 'files/torches/%i/%s' % (self.torch.id, filename)
+
+    torch = models.ForeignKey(Torch, related_name='files')
+    filename = models.FileField(upload_to=upload_to)
+    category = models.CharField(max_length=20, choices=CATEGORIES)
+    mimetype = models.CharField(max_length=256, default='application/octet-stream', blank=True)
+
+    def __unicode__(self):
+        return u'%s, %s, %s %i' % (self.category_name, self.torch, self.torch.ring, self.torch.pos)
+
+    def save(self, *args, **kwargs):
+        filename = self.filename.name
+        mimetype, encoding = mimetypes.guess_type(filename)
+        if mimetype:
+            self.mimetype = mimetype
+        super(TorchFile, self).save(*args, **kwargs)
+
+    @property
+    def category_name(self):
+        return dict(self.CATEGORIES)[self.category]

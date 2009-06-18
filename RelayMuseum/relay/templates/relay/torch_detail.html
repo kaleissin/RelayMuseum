@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load relay_tags %}
 {% block submenu %}
 <ul>
     <li><a href="/relay/">All</a></li>
@@ -86,6 +87,12 @@
             <td>Missing</td>
             {% endif %}
         </tr>
+        {% for file in object.files.all %}
+        <tr>
+            <th>{{ file.category_name }}</th>
+            <td>{{ file|show_torchfile }}</td>
+        </tr>
+        {% endfor %}
     </table>
 
 {% endblock content %}
