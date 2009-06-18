@@ -60,10 +60,14 @@
         </tr>
         <tr>
             <th>Interlinear</th>
+            {% if object.il_xhtml %}
+            <td>{{ object.il_xhtml|safe|wordwrap:"90" }}</td>
+            {% else %}
             {% if object.interlinear %}
             <td><pre>{{ object.interlinear|wordwrap:"90" }}</pre></td>
             {% else %}
             <td>Missing</td>
+            {% endif %}
             {% endif %}
         </tr>
         <tr>
