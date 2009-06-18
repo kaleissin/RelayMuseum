@@ -19,8 +19,8 @@ urlpatterns = patterns('django.views.generic',
 )
 
 urlpatterns += patterns('relay.views',
-        (r'^relay/(?P<relay>[-a-z0-9._]+)/(?P<ring>[a-z0-9._]+)/([?](?P<action>smooth))?$', 'show_ring'),
-        (r'^relay/(?P<relay>[-a-z0-9._]+)/(?P<ring>[a-z0-9._]+)/(?P<id>[0-9]+)/$', 'torch_detail'),
+        (r'^relay/(?P<relay>[-a-z0-9._]+)/(?P<ring>[-a-z0-9._]+)/(?P<id>[0-9]+)/$', 'torch_detail'),
+        (r'^relay/(?P<relay>[-a-z0-9._]+)/(?P<ring>[-a-z0-9._]+)/([?](?P<action>smooth))?$', 'show_ring'),
         (r'^relay/(?P<slug>[-a-z0-9._]+)/$', 'relay_detail'),
         (r'^relay/$', 'relay_list'),
         (r'^statistics/$', 'show_statistics'),
