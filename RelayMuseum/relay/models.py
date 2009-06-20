@@ -1,5 +1,6 @@
 from django.db import models
 from django.template.defaultfilters import slugify
+from django.core.exceptions import ObjectDoesNotExist
 
 from cals.models import Language as CalsLanguage
 from cals.models import User as CalsUser
@@ -7,9 +8,17 @@ from translations.models import get_interlinear
 
 __all__ = ('Participant', 'Language', 'Ring', 'Torch', 'Relay', 'TorchFile')
 
+def good_slugify(self):
+    slug = slugify(self.name)
+    try:
+        self.__class__.objects.get(slug=slug)
+    except ObjectDoesNotExist:
+        slug = slug + '-%i' % self.id
+    return slug
+
 def re_slugify(queryset):
     for object in queryset.objects.all():
-        object.slug = slugify(object.name)
+        object.slug = good_slugify(object.name)
         object.save(force_update=True)
 
 def clone_ringtorch(relay, torch):
@@ -69,7 +78,7 @@ class Language(models.Model):
     def save(self, *args, **kwargs):
         if not self.name and self.cals_language:
             self.name = self.cals_language.name
-        self.slug = slugify(self.name)
+        self.slug = good_slugify(self.name)
         super(Language, self).save(*args, **kwargs)
 
     def relays(self):
@@ -104,7 +113,7 @@ class Relay(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        self.slug = slugify(self.name)
+        self.slug = good_slugify(self)
         super(Relay, self).save(*args, **kwargs)
 
     @property
@@ -159,7 +168,7 @@ class Ring(models.Model):
     def save(self, *args, **kwargs):
         if not self.ring_master:
             self.ring_master = self.relay.relay_master
-        self.slug = slugify(self.name)
+        self.slug = good_slugify(self.name)
         super(Ring, self).save(*args, **kwargs)
 
     @property
@@ -172,7 +181,6 @@ class Torch(models.Model):
             ('leipzig', 'Leipzig Glossing Rules'),
     )
 
-    #followed = models.ForeignKey('Torch', null=True, blank=True, related_name='follows')
     relay = models.ForeignKey(Relay, related_name='torches')
     ring = models.ForeignKey(Ring, blank=True, null=True, related_name='torches')
     participant = models.ForeignKey(Participant, related_name='torches')
@@ -180,11 +188,20 @@ class Torch(models.Model):
     first = models.BooleanField(default=False)
     last = models.BooleanField(default=False)
     pos = models.IntegerField('position', default=0)
+#     torch_title = models.CharField(max_length=128,
+#             blank=True,null=True,
+#             help_text='Title, if any, of the torch')
     torch = models.TextField(
             help_text='The text that was sent to the next participant')
+#     smooth_translation_title = models.CharField(max_length=128,
+#             blank=True,null=True,
+#             help_text='Title, if any, of the smooth translation')
     smooth_translation = models.TextField(
             blank=True, null=True,
             help_text='Smooth English translation of the torch sent')
+#     translation_of_received_title = models.CharField(max_length=128,
+#             blank=True,null=True,
+#             help_text='Title, if any, of the translation of the received text')
     translation_of_received = models.TextField(
             blank=True, null=True,
             help_text='Translation of the torch received')
