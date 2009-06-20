@@ -18,12 +18,12 @@
             <td><a href="/language/{{ object.slug }}/">{{ object }}</a></td>
             <td>
                 {% for relay in object.relays %}
-                <a href="/relay/{{ relay.slug }}/">{{ relay }}</a>
+                <a href="/relay/{{ relay.slug }}/">{{ relay }}</a><br />
                 {% endfor %}
             </td>
             <td>
                 {% for participant in object.participants %}
-                <a href="/participant/{{ participant.slug }}/">{{ participant }}</a>
+                <a href="/participant/{{ participant.slug }}/">{{ participant }}</a><br />
                 {% endfor %}
             </td>
             <td>

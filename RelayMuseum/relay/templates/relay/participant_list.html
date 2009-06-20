@@ -20,12 +20,13 @@
             <td><a href="/participant/{{ object.slug }}/">{{ object }}</a></td>
             <td>
                 {% for relay in object.relays %}
-                <a href="/relay/{{ relay.slug }}/">{{ relay }}</a>
+                <a href="/relay/{{ relay.slug }}/">{{ relay }}</a><br />
                 {% endfor %}
+                </ol>
             </td>
             <td>
                 {% for language in object.languages %}
-                <a href="/language/{{ language.slug }}/">{{ language }}</a>
+                <a href="/language/{{ language.slug }}/">{{ language }}</a><br/>
                 {% endfor %}
             </td>
             <td>
@@ -55,7 +56,7 @@
             <td><a href="/participant/{{ object.slug }}/">{{ object }}</a></td>
             <td>
                 {% for relay in object.relay_mastering.all %}
-                <a href="/relay/{{ relay.slug }}/">{{ relay }}</a>
+                <a href="/relay/{{ relay.slug }}/">{{ relay }}</a><br />
                 {% endfor %}
             </td>
         </tr>
@@ -80,7 +81,7 @@
             <td><a href="/participant/{{ object.slug }}/">{{ object }}</a></td>
             <td>
                 {% for ring in object.rings %}
-                <a href="/relay/{{ ring.relay.slug }}/{{ring.slug }}/">{{ ring }}</a>
+                <a href="/relay/{{ ring.relay.slug }}/{{ring.slug }}/">{{ ring }}</a><br />
                 {% endfor %}
             </td>
         </tr>
