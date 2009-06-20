@@ -43,10 +43,10 @@ class Participant(models.Model):
         super(Participant, self).save(*args, **kwargs)
 
     def relays(self):
-        return sorted(set(torch.relay for torch in self.torches.all()))
+        return Relay.objects.filter(id__in=[torch.relay.id for torch in self.torches.all()])
 
     def languages(self):
-        return sorted(set(torch.language for torch in self.torches.all()))
+        return Language.objects.filter(id__in=[torch.language.id for torch in self.torches.all()])
 
     def rings(self):
         rings = self.ring_mastering.all()
@@ -82,10 +82,10 @@ class Language(models.Model):
         super(Language, self).save(*args, **kwargs)
 
     def relays(self):
-        return sorted(set(torch.relay for torch in self.torches.all()))
+        return Relay.objects.filter(id__in=[torch.relay.id for torch in self.torches.all()])
 
     def participants(self):
-        return sorted(set(torch.participant for torch in self.torches.all()))
+        return Participant.objects.filter(id__in=[torch.participant.id for torch in self.torches.all()])
 
 class Relay(models.Model):
     RELAY_SUBTYPES = (
