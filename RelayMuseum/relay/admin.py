@@ -28,8 +28,11 @@ class TorchAdmin(admin.ModelAdmin):
     list_display_links = ['pos', 'language', 'participant']
     list_filter = ['relay']
     save_on_top = True
-    search_fields = ['^language__name', '^language__cals_language__name', '^participant__name', '^participant__cals_user__display_name']
+    search_fields = ['^language__name', '^language__cals_language__name', '^participant__name', '^participant__cals_user__profile__display_name']
 admin.site.register(Torch, TorchAdmin)
 
-admin.site.register(Participant)
+class ParticipantAdmin(admin.ModelAdmin):
+    list_display = ('name', 'cals_user')
+admin.site.register(Participant, ParticipantAdmin)
+
 admin.site.register(Language)
