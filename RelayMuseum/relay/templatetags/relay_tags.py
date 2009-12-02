@@ -3,7 +3,10 @@ from django.conf import settings
 from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
 
-from cals.templatetags.cals_tags import integer, fraction, LOG
+from cals.templatetags.cals_tags import integer, fraction
+
+import logging
+_LOG = logging.getLogger(__name__)
 
 register = template.Library()
 
