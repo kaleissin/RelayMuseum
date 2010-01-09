@@ -1,8 +1,5 @@
 from django.contrib import admin
 
-from cals.models import Language as CalsLanguage
-from cals.models import User as CalsUser
-
 from relay.models import *
 
 class RingInline(admin.TabularInline):
@@ -28,7 +25,7 @@ class TorchAdmin(admin.ModelAdmin):
     list_display_links = ['pos', 'language', 'participant']
     list_filter = ['relay']
     save_on_top = True
-    search_fields = ['^language__name', '^language__cals_language__name', '^participant__name', '^participant__cals_user__profile__display_name']
+    search_fields = ['^language__name', '^participant__name', '^participant__cals_user__profile__display_name']
 admin.site.register(Torch, TorchAdmin)
 
 class ParticipantAdmin(admin.ModelAdmin):

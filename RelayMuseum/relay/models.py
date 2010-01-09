@@ -1,20 +1,21 @@
 from django.db import models
 from django.template.defaultfilters import slugify
 from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.models import User as CalsUser
+from django.contrib.auth.models import SiteProfileNotAvailable
+from django.utils.safestring import mark_for_escaping as _escape
 
-from cals.models import Language as CalsLanguage
-from cals.models import User as CalsUser
-from translations.models import get_interlinear
+try:
+    import cals.models
+except ImportError:
+    CalsLanguage = None
+else:
+    CalsLanguage = cals.models.Language
 
-__all__ = ('Participant', 'Language', 'Ring', 'Torch', 'Relay', 'TorchFile')
+from interlinears import make_html_interlinear
 
-def good_slugify(self):
-    slug = slugify(self.name)
-    try:
-        self.__class__.objects.get(slug=slug)
-    except ObjectDoesNotExist:
-        slug = slug + '-%i' % self.id
-    return slug
+__all__ = ('Participant', 'Language', 'Ring', 'Torch', 'Relay', 'TorchFile', 'CalsLanguage')
+
 
 def re_slugify(queryset):
     for object in queryset.objects.all():
@@ -25,10 +26,32 @@ def clone_ringtorch(relay, torch):
     pass
     #rings = relay.
 
-class Participant(models.Model):
+class UniqueSlugModel(models.Model):
+    slug = models.SlugField(blank=True, null=True, editable=False, unique=True)
+
+    class Meta:
+        abstract = True
+
+    def save(self, *args, **kwargs):
+        self.slug = self.good_slugify()
+        super(UniqueSlugModel, self).save(*args, **kwargs)
+
+    def good_slugify(self):
+        slug = slugify(self.name)
+        try:
+            o = self.__class__.objects.get(slug=slug)
+            if self.id is not None:
+                if self.id == o.id:
+                    return slug
+                return slug + '-%i' % self.id
+        except ObjectDoesNotExist:
+            pass
+            #slug = slug + '-%i' % self.id
+        return slug
+
+class Participant(UniqueSlugModel):
     cals_user = models.ForeignKey(CalsUser, null=True, blank=True, related_name='relays')
     name = models.CharField(max_length=100, null=True, blank=True)
-    slug = models.SlugField(blank=True, null=True, editable=False)
 
     class Meta:
         ordering = ['name']
@@ -38,8 +61,12 @@ class Participant(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.name and self.cals_user:
-            self.name = self.cals_user.get_profile().display_name
-        self.slug = good_slugify(self)
+            try:
+                # We have cals
+                self.name = self.cals_user.get_profile().display_name
+            except SiteProfileNotAvailable:
+                # We don't have cals
+                self.name = self.cals_user.username
         super(Participant, self).save(*args, **kwargs)
 
     def relays(self):
@@ -63,14 +90,17 @@ class Participant(models.Model):
                 out.append(ring)
         return out
 
-class Language(models.Model):
-    cals_language = models.ForeignKey(CalsLanguage, null=True, blank=True, related_name='relays')
+class Language(UniqueSlugModel):
+    if CalsLanguage:
+        cals_language = models.ForeignKey(CalsLanguage, null=True, blank=True, related_name='relays')
     name = models.CharField(max_length=100, null=True, blank=True, unique=True)
-    slug = models.SlugField(blank=True, null=True, editable=False, unique=True)
 
     class Meta:
         ordering = ['name']
-        unique_together = ('cals_language', 'name', 'slug')
+        if CalsLanguage:
+            unique_together = ('cals_language', 'name', 'slug')
+        else:
+            unique_together = ('name', 'slug')
 
     def __unicode__(self):
         return self.name
@@ -78,7 +108,6 @@ class Language(models.Model):
     def save(self, *args, **kwargs):
         if not self.name and self.cals_language:
             self.name = self.cals_language.name
-        self.slug = good_slugify(self.name)
         super(Language, self).save(*args, **kwargs)
 
     def relays(self):
@@ -87,13 +116,12 @@ class Language(models.Model):
     def participants(self):
         return Participant.objects.filter(id__in=[torch.participant.id for torch in self.torches.all()])
 
-class Relay(models.Model):
+class Relay(UniqueSlugModel):
     RELAY_SUBTYPES = (
             ('standard', 'Standard'),
             ('inverse', 'Inverse'),
             )
     name = models.CharField(max_length=40)
-    slug = models.SlugField(blank=True, null=True, editable=False)
     relay_master = models.ForeignKey(Participant, related_name='relay_mastering')
     subtype = models.CharField(max_length=20, 
             choices=RELAY_SUBTYPES,
@@ -111,10 +139,6 @@ class Relay(models.Model):
 
     def __unicode__(self):
         return self.name
-
-    def save(self, *args, **kwargs):
-        self.slug = good_slugify(self)
-        super(Relay, self).save(*args, **kwargs)
 
     @property
     def num_torches(self):
@@ -168,7 +192,7 @@ class Ring(models.Model):
     def save(self, *args, **kwargs):
         if not self.ring_master:
             self.ring_master = self.relay.relay_master
-        self.slug = good_slugify(self.name)
+        slug = slugify(self.name) if self.name != '_' else '_'
         super(Ring, self).save(*args, **kwargs)
 
     @property
@@ -229,7 +253,7 @@ class Torch(models.Model):
 
     def save(self, *args, **kwargs):
         if self.interlinear.strip():
-            self.il_xhtml = get_interlinear(self)
+            self.il_xhtml = make_html_interlinear(self.interlinear, format=self.il_format)
         # Denormalization
         if not self.relay and self.ring:
             self.relay = self.ring.relay
@@ -259,7 +283,7 @@ class Torch(models.Model):
             return None
 
     def get_interlinear(self):
-        return get_interlinear(self)
+        return make_html_interlinear(self.interlinear, self.il_format, _escape)
 
     def simple_name(self):
         return self.__unicode__()

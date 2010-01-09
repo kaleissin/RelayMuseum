@@ -27,11 +27,13 @@
             <td class="fraction">.{{ lang.avg_participants|fraction }}</td>
             <td>participants per language</td>
         </tr>
+        {% if lang.avg_calslang %}
         <tr>
             <td class="integer">{{ lang.avg_calslang|integer }}</td>
             <td class="fraction">.{{ lang.avg_calslang|fraction }}%</td>
             <td>of all languages are also in CALS</td>
         </tr>
+        {% endif %}
         <tr>
             <td class="integer">{{ participant.num }}</td>
             <td></td>

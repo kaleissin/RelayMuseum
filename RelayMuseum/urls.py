@@ -5,7 +5,7 @@ from django.views.generic.simple import direct_to_template
 from django.contrib import admin
 admin.autodiscover()
 
-STATIC_DOC_ROOT = '/home/taliesin/django/media/RelayMuseum'
+STATIC_DOC_ROOT = settings.SITE_ROOT + '/media'
 
 urlpatterns = patterns('',
     (r'^admin/doc/',            include('django.contrib.admindocs.urls')),
@@ -18,7 +18,7 @@ urlpatterns = patterns('',
 
 if settings.DEBUG:
     urlpatterns += patterns('',
-        (r'^RelayMuseum/(?P<path>.*)$',   'django.views.static.serve', {'document_root': STATIC_DOC_ROOT }),
+        (r'^media/(?P<path>.*)$',   'django.views.static.serve', {'document_root': STATIC_DOC_ROOT }),
     )
 
 

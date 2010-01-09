@@ -96,7 +96,10 @@ def show_statistics(request, *args, **kwargs):
     avg_torches_per_ring = float(num_torches) / num_rings - 1
     avg_torches_per_relay = float(num_torches) / num_relays
     avg_participants_per_language = num_participants / float(num_langs)
-    avg_calslanguages = Language.objects.filter(cals_language__isnull=False).count() / float(num_langs) * 100
+    if CalsLanguage:
+        avg_calslanguages = Language.objects.filter(cals_language__isnull=False).count() / float(num_langs) * 100
+    else:
+        avg_calslanguages = None
     avg_calsparticipants = Participant.objects.filter(cals_user__isnull=False).count() / float(num_participants) * 100
 
     all_missing_torches = sum(relay.missing_torches for relay in Relay.objects.all())
