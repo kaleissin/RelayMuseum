@@ -6,11 +6,9 @@ from django.contrib.auth.models import SiteProfileNotAvailable
 from django.utils.safestring import mark_for_escaping as _escape
 
 try:
-    import cals.models
+    from cals.models import Language as CalsLanguage
 except ImportError:
     CalsLanguage = None
-else:
-    CalsLanguage = cals.models.Language
 
 from interlinears import make_html_interlinear
 
@@ -171,7 +169,7 @@ class Ring(models.Model):
     relay = models.ForeignKey(Relay, related_name='rings')
     ring_master = models.ForeignKey(Participant, blank=True, null=True, related_name='ring_mastering')
     name = models.CharField(max_length=10, default='_')
-    slug = models.SlugField(blank=True, null=True, editable=False)
+    slug = models.SlugField(blank=True, null=True, editable=False, default='_')
     subtype = models.CharField(max_length=20, 
         choices=RING_SUBTYPES,
         default='standard')
@@ -192,7 +190,8 @@ class Ring(models.Model):
     def save(self, *args, **kwargs):
         if not self.ring_master:
             self.ring_master = self.relay.relay_master
-        slug = slugify(self.name) if self.name != '_' else '_'
+        if self.name != '_':
+            slug = slugify(self.name)
         super(Ring, self).save(*args, **kwargs)
 
     @property
