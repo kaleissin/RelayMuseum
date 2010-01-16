@@ -294,6 +294,7 @@ class TorchFile(models.Model):
             ('alttorch', 'Alternate version'),
             ('recording', 'Recording'),
             ('orthopgraphy', 'Native orthopgraphy'),
+            ('print', 'Printable version'),
     )
 
     def upload_to(self, filename):
