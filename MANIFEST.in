@@ -1,0 +1,6 @@
+exclude RelayMuseum/settings_local.py
+include RelayMuseum/templates/*
+include RelayMuseum/media/*/*
+include RelayMuseum/relay/templatetags/*.py
+include *.rst
+include requirements.txt
