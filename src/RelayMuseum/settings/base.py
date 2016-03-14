@@ -12,7 +12,8 @@ ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
 )
 
-MANAGERS = ADMINS
+CONFIG_PATH = ['/etc/django-sites.d', '/usr/local/etc/django-sites.d', BASE_DIR]
+
 
 ALLOWED_HOSTS = []
 
