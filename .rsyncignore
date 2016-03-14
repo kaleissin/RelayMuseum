@@ -1,0 +1,10 @@
+.git
+.tox
+htmlcov
+build
+dist
+Attic
+*.bak
+*.pyc
+*.sw?
+__pycache__
