@@ -2,24 +2,26 @@
 Installation
 ============
 
-You'll need ``Python 2.5.x`` or newer. As ``django`` currently does not run
-on ``Python 3.x``, neither does this.
+You'll need ``Python 2.7.x``, ``Python 3.4.x`` or newer.
 
-You will need a database supported by ``django``. ``Python 2.5`` and newer
+You will need a database supported by ``django``. ``Python 2.7`` and newer
 includes ``sqlite3``, which is adequate.
 
-Either:
-
-1. Install it with ``pip`` 
-2. Checkout the source and put it somewhere in your ``PYTHONPATH``
-3. Get the source and install with ``setup.py`` as usual
-
-The dependencies are listed in the ``requirements.txt``-file. You can
-install everything by running ``pip install -r requirements.txt`` once you
-have the source.
+Install it with ``pip``.
 
 If running the museum itself as a website you'll need to place the
-``django`` database-settings in ``settings_local.py`` in the
-``RelayMuseum``-directory and run ``python manage syncdb`` there. If just
-using the ``relay``-app, place ``RelayMuseum.relay`` in the ``INSTALLED_APPS``
-of the importing project. 
+following settings in a file called ``RelayMuseumConf.py`` in either
+``/etc/django-sites.d``, ``/usr/local/etc/django-sites.d`` or the same
+directory as this file.
+
+The following settings will need to be set, at a minimum:
+
+* ALLOWED_HOSTS
+* DATABASES
+* LOGGING
+* SECRET_KEY
+* MEDIA_ROOT
+* STATIC_ROOT
+
+The locations pointed to by ``MEDIA_ROOT`` and ``STATIC_ROOT`` must be
+accessible by a web-server.
