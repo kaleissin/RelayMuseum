@@ -4,8 +4,8 @@ from django.db import models
 from django.template.defaultfilters import slugify
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User as CalsUser
-from django.contrib.auth.models import SiteProfileNotAvailable
 from django.utils.safestring import mark_for_escaping as _escape
+from django.utils.html import escape
 
 try:
     from cals.models import Language as CalsLanguage
@@ -22,9 +22,11 @@ def re_slugify(queryset):
         object.slug = good_slugify(object.name)
         object.save(force_update=True)
 
+
 def clone_ringtorch(relay, torch):
     pass
     #rings = relay.
+
 
 class UniqueSlugModel(models.Model):
     slug = models.SlugField(blank=True, null=True, editable=False, unique=True)
@@ -49,6 +51,7 @@ class UniqueSlugModel(models.Model):
             #slug = slug + '-%i' % self.id
         return slug
 
+
 class Participant(UniqueSlugModel):
     cals_user = models.ForeignKey(CalsUser, null=True, blank=True, related_name='relays')
     name = models.CharField(max_length=100, null=True, blank=True)
@@ -56,17 +59,17 @@ class Participant(UniqueSlugModel):
     class Meta:
         ordering = ['name']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def save(self, *args, **kwargs):
         if not self.name and self.cals_user:
-            try:
-                # We have cals
-                self.name = self.cals_user.get_profile().display_name
-            except SiteProfileNotAvailable:
-                # We don't have cals
-                self.name = self.cals_user.username
+            # get name from CALS
+            name = self.cals_user.username
+            profile = getattr(self.cals_user, 'profile', None)
+            if profile:
+                name = profile.display_name
+            self.name = name
         super(Participant, self).save(*args, **kwargs)
 
     def relays(self):
@@ -90,6 +93,7 @@ class Participant(UniqueSlugModel):
                 out.append(ring)
         return out
 
+
 class Language(UniqueSlugModel):
     if CalsLanguage:
         cals_language = models.ForeignKey(CalsLanguage, null=True, blank=True, related_name='relays')
@@ -102,7 +106,7 @@ class Language(UniqueSlugModel):
         else:
             unique_together = ('name', 'slug')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def save(self, *args, **kwargs):
@@ -115,6 +119,7 @@ class Language(UniqueSlugModel):
 
     def participants(self):
         return Participant.objects.filter(id__in=[torch.participant.id for torch in self.torches.all()])
+
 
 class Relay(UniqueSlugModel):
     RELAY_SUBTYPES = (
@@ -137,7 +142,7 @@ class Relay(UniqueSlugModel):
     class Meta:
         ordering = ['pos']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     @property
@@ -179,11 +184,11 @@ class Ring(models.Model):
     num_torches = models.PositiveIntegerField('Number of torches', default=0)
 
     class Meta:
-        ordering = ['id', 'name']
+        #ordering = ['id', 'name']
         unique_together = ('relay', 'name')
         order_with_respect_to = 'relay'
 
-    def __unicode__(self):
+    def __str__(self):
         if self.name != u'_':
             return u'%s, ring %s' % (self.relay.name, self.name)
         else:
@@ -200,10 +205,11 @@ class Ring(models.Model):
     def missing_torches(self):
         return self.num_torches - self.torches.count()
 
+
 class Torch(models.Model):
     INTERLINEAR_FORMATS = (
-            ('monospace', 'WYSIWYG monospace'),
-            ('leipzig', 'Leipzig Glossing Rules'),
+        ('monospace', 'WYSIWYG monospace'),
+        ('leipzig', 'Leipzig Glossing Rules'),
     )
 
     relay = models.ForeignKey(Relay, related_name='torches')
@@ -246,15 +252,15 @@ class Torch(models.Model):
     class Meta:
         verbose_name_plural = 'torches'
         unique_together = ('relay', 'ring', 'pos')
-        ordering = ('ring', 'pos',)
+        #ordering = ('ring', 'pos',)
         order_with_respect_to = 'ring'
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s by %s' % (self.language.name, self.participant.name)
 
     def save(self, *args, **kwargs):
         if self.interlinear.strip():
-            self.il_xhtml = make_html_interlinear(self.interlinear, format=self.il_format)
+            self.il_xhtml = make_html_interlinear(escape(self.interlinear), format=self.il_format)
         # Denormalization
         if not self.relay and self.ring:
             self.relay = self.ring.relay
@@ -287,7 +293,8 @@ class Torch(models.Model):
         return make_html_interlinear(self.interlinear, self.il_format, _escape)
 
     def simple_name(self):
-        return self.__unicode__()
+        return self.__str__()
+
 
 class TorchFile(models.Model):
     CATEGORIES = (
@@ -305,7 +312,7 @@ class TorchFile(models.Model):
     category = models.CharField(max_length=20, choices=CATEGORIES)
     mimetype = models.CharField(max_length=256, default='application/octet-stream', blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s, %s, %s %i' % (self.category_name, self.torch, self.torch.ring, self.torch.pos)
 
     def save(self, *args, **kwargs):

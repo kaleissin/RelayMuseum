@@ -1,8 +1,9 @@
-from django.views.generic.list_detail import object_list, object_detail
+from django.views.generic import ListView
+from django.views.generic import DetailView
+from django.shortcuts import render
 
 from relay.models import *
 
-from nano.tools import render_page
 
 def in_kwargs_or_get(request, kwargs, key, value):
     """If an url has the key-value-pair key=<value> in kwargs or
@@ -12,78 +13,111 @@ def in_kwargs_or_get(request, kwargs, key, value):
         return True
     return False
 
+
 def show_ring(request, *args, **kwargs):
     if in_kwargs_or_get(request, kwargs, u'action', 'smooth'):
         return torch_smooth_translation_list(request, *args, **kwargs)
     return torch_list(request, *args, **kwargs)
 
-def torch_list(request, *args, **kwargs):
-    relay = Relay.objects.get(slug=kwargs['relay'])
-    ring = Ring.objects.get(relay=relay, slug=kwargs['ring'])
-    queryset = Torch.objects.filter(ring=ring).order_by('pos')
-    extra_context = {
-        'me': 'relay',
-        'ring': ring,
-        'relay': relay,
-    }
-    return object_list(request, queryset, extra_context=extra_context)
 
-def relay_list(request, *args, **kwargs):
+class RelayMixin(object):
+    def get_context_data(self, **kwargs):
+        kwargs['me'] = 'relay'
+        return super(RelayMixin, self).get_context_data(**kwargs)
+
+
+class TorchListView(RelayMixin, ListView):
+
+    def get_queryset(self):
+        self.relay = Relay.objects.get(slug=self.kwargs['relay'])
+        self.ring = Ring.objects.get(relay=self.relay, slug=self.kwargs['ring'])
+        queryset = Torch.objects.filter(ring=self.ring).order_by('pos')
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        kwargs['ring'] = self.ring
+        kwargs['relay'] = self.relay
+        return super(TorchListView, self).get_context_data(**kwargs)
+torch_list = TorchListView.as_view()
+
+
+class RelayListView(RelayMixin, ListView):
     queryset = Relay.objects.order_by('pos')
-    extra_context = {
-        'me': 'relay',
-    }
-    return object_list(request, queryset, extra_context=extra_context)
+relay_list = RelayListView.as_view()
 
-def participant_list(request, *args, **kwargs):
+
+class ParticipantMixin(object):
     queryset = Participant.objects.all()
-    extra_context = {
-        'me': 'participant',
-        'relay_masters': queryset.filter(relay_mastering__isnull=False).distinct(),
-        'ring_masters': queryset.filter(ring_mastering__isnull=False).distinct(),
-    }
-    return object_list(request, queryset, extra_context=extra_context)
 
-def torch_smooth_translation_list(request, *args, **kwargs):
-    relay = Relay.objects.get(slug=kwargs['relay'])
-    ring = Ring.objects.get(relay=relay, slug=kwargs['ring'])
-    queryset = Torch.objects.filter(ring=ring).order_by('pos')
-    extra_context = {
-        'me': 'relay',
-        'ring': ring,
-        'relay': relay,
-    }
+    def get_context_data(self, **kwargs):
+        kwargs['me'] = 'participant'
+        return super(ParticipantMixin, self).get_context_data(**kwargs)
 
-    return object_list(request, 
-            queryset, 
-            template_name='relay/ring_smooth_translation.html',
-            extra_context=extra_context)
 
-def relay_detail(request, *args, **kwargs):
-    relay = Relay.objects.get(slug=kwargs['slug'])
-    rings = Ring.objects.filter(relay=relay)
-    queryset = Relay.objects.all()
-    extra_context = {
-        'me': 'relay',
-        'rings': rings,
-        'num_rings': rings.count(),
-        'relay': relay,
-    }
+class ParticipantDetailView(ParticipantMixin, DetailView):
+    pass
+participant_detail = ParticipantDetailView.as_view()
 
-    return object_detail(request, queryset, object_id=relay.id, extra_context=extra_context)
 
-def torch_detail(request, *args, **kwargs):
-    relay = Relay.objects.get(slug=kwargs['relay'])
-    ring = Ring.objects.get(relay=relay, slug=kwargs['ring'])
-    queryset = Torch.objects.filter(ring=ring, id=kwargs['id'])
-    torch = queryset[0]
-    extra_context = {
-        'me': 'relay',
-        'ring': ring,
-        'relay': relay,
-    }
+class ParticipantListView(ParticipantMixin, ListView):
 
-    return object_detail(request, queryset, object_id=torch.id, extra_context=extra_context)
+    def get_context_data(self, **kwargs):
+        kwargs['relay_masters'] = self.queryset.filter(relay_mastering__isnull=False).distinct()
+        kwargs['ring_masters'] = self.queryset.filter(ring_mastering__isnull=False).distinct()
+        return super(ParticipantListView, self).get_context_data(**kwargs)
+participant_list = ParticipantListView.as_view()
+
+
+class TorchSmoothTranslationListView(TorchListView):
+    template_name = 'relay/ring_smooth_translation.html'
+torch_smooth_translation_list = TorchSmoothTranslationListView.as_view()
+
+
+class RelayDetailView(RelayMixin, DetailView):
+
+    def get_queryset(self):
+        self.relay = Relay.objects.get(slug=self.kwargs['slug'])
+        self.rings = Ring.objects.filter(relay=self.relay)
+        queryset = Relay.objects.all()
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        kwargs['rings'] = self.rings
+        kwargs['relay'] = self.relay
+        kwargs['num_rings'] = self.rings.count()
+        return super(RelayDetailView, self).get_context_data(**kwargs)
+relay_detail = RelayDetailView.as_view()
+
+
+class TorchDetailView(RelayMixin, DetailView):
+    def get_queryset(self):
+        queryset = Torch.objects.filter(id=self.kwargs['pk'])
+        self.relay = Relay.objects.get(slug=self.kwargs['relay'])
+        self.ring = Ring.objects.get(relay=self.relay, torches=queryset)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        kwargs['ring'] = self.ring
+        kwargs['relay'] = self.relay
+        return super(TorchDetailView, self).get_context_data(**kwargs)
+torch_detail = TorchDetailView.as_view()
+
+
+class LanguageMixin(object):
+    queryset = Language.objects.all()
+
+    def get_context_data(self, **kwargs):
+        kwargs['me'] = 'language'
+        return super(LanguageMixin, self).get_context_data(**kwargs)
+
+
+class LanguageDetailView(LanguageMixin, DetailView):
+    pass
+language_detail = LanguageDetailView.as_view()
+
+class LanguageListView(LanguageMixin, ListView):
+    pass
+language_list = LanguageListView.as_view()
 
 def show_statistics(request, *args, **kwargs):
     num_langs = Language.objects.count()
@@ -106,29 +140,30 @@ def show_statistics(request, *args, **kwargs):
     all_missing_relays = Relay.objects.filter(missing=True)
 
     langstats = {
-            'num': num_langs,
-            'avg_participants': avg_participants_per_language,
-            'avg_calslang': avg_calslanguages,
+        'num': num_langs,
+        'avg_participants': avg_participants_per_language,
+        'avg_calslang': avg_calslanguages,
     }
     participantstats = {
-            'num': num_participants,
-            'avg_calsuser': avg_calsparticipants,
+        'num': num_participants,
+        'avg_calsuser': avg_calsparticipants,
     }
     relaystats = {
-            'num': num_relays,
-            'avg_rings': avg_rings_per_relay,
-            'avg_torches': avg_torches_per_relay,
-            'avg_torches_per_ring': avg_torches_per_ring,
+        'num': num_relays,
+        'avg_rings': avg_rings_per_relay,
+        'avg_torches': avg_torches_per_relay,
+        'avg_torches_per_ring': avg_torches_per_ring,
     }
     missingstats = {
-            'torches': all_missing_torches,
-            'relays': all_missing_relays,
+        'torches': all_missing_torches,
+        'relays': all_missing_relays,
     }
-    data = {'relay': relaystats,
-            'lang': langstats,
-            'participant': participantstats,
-            'missing': missingstats,
-            'me': 'statistics',
-            }
+    data = {
+        'relay': relaystats,
+        'lang': langstats,
+        'participant': participantstats,
+        'missing': missingstats,
+        'me': 'statistics',
+    }
 
-    return render_page(request, 'relay/statistics.html', data)
+    return render(request, 'relay/statistics.html', data)

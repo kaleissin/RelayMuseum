@@ -1,24 +1,17 @@
 from django.conf import settings
-from django.conf.urls.defaults import *
-from django.views.generic.simple import direct_to_template
-
+from django.conf.urls import *
 from django.contrib import admin
+from django.conf.urls.static import static
+
+from .views import HomePage
+
 admin.autodiscover()
 
-STATIC_DOC_ROOT = settings.SITE_ROOT + '/media'
+STATIC_DOC_ROOT = settings.BASE_DIR + '/media'
 
-urlpatterns = patterns('',
-    (r'^admin/doc/',            include('django.contrib.admindocs.urls')),
-#    (r'^admin/webalizer/',      include('webalizer.urls')),
-    (r'^admin/(.*)',            admin.site.root),
-    (r'^$',          'django.views.generic.simple.direct_to_template',
-    {'template': 'index.html', 'extra_context': {'me': 'home'}}),
-    (r'^',          include('relay.urls')),
-)
-
-if settings.DEBUG:
-    urlpatterns += patterns('',
-        (r'^media/(?P<path>.*)$',   'django.views.static.serve', {'document_root': STATIC_DOC_ROOT }),
-    )
-
-
+urlpatterns = [
+    url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
+    url(r'^admin/',     admin.site.urls),
+    url(r'^$',          HomePage.as_view()),
+    url(r'^',           include('relay.urls')),
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

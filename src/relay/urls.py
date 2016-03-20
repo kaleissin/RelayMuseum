@@ -1,29 +1,19 @@
-from django.conf.urls.defaults import *
+from django.conf.urls import *
 
 from relay.models import *
+from relay import views
 
-language_list = {
-        'queryset': Language.objects.all(),
-        'extra_context': { 'me': 'language', }
-    }
-
-participant_list = {
-        'queryset': Participant.objects.all(),
-        'extra_context': { 'me': 'participant', }
-    }
-
-urlpatterns = patterns('django.views.generic',
-        (r'^language/(?P<slug>[-a-z0-9._]+)/$', 'list_detail.object_detail', dict(language_list)),
-        (r'^language/$', 'list_detail.object_list', dict(language_list)),
-        (r'^participant/(?P<slug>[-a-z0-9._]+)/$', 'list_detail.object_detail', dict(participant_list)),
-)
-
-urlpatterns += patterns('relay.views',
-        (r'^relay/(?P<relay>[-a-z0-9._]+)/(?P<ring>[-a-z0-9._]+)/(?P<id>[0-9]+)/$', 'torch_detail'),
-        (r'^relay/(?P<relay>[-a-z0-9._]+)/(?P<ring>[-a-z0-9._]+)/([?](?P<action>smooth))?$', 'show_ring'),
-        (r'^relay/(?P<slug>[-a-z0-9._]+)/$', 'relay_detail'),
-        (r'^relay/$', 'relay_list'),
-        (r'^statistics/$', 'show_statistics'),
-        (r'^participant/$', 'participant_list'),
-)
+urlpatterns = [
+    url(r'^language/(?P<slug>[-a-z0-9._]+)/$', views.language_detail),
+    url(r'^language/$', views.language_list),
+    url(r'^relay/(?P<relay>[-a-z0-9._]+)/(?P<ring>[-a-z0-9._]+)/(?P<pk>[0-9]+)/$',
+        views.torch_detail),
+    url(r'^relay/(?P<relay>[-a-z0-9._]+)/(?P<ring>[-a-z0-9._]+)/([?](?P<action>smooth))?$',
+        views.show_ring),
+    url(r'^relay/(?P<slug>[-a-z0-9._]+)/$', views.relay_detail),
+    url(r'^relay/$', views.relay_list),
+    url(r'^participant/(?P<slug>[-a-z0-9._]+)/$', views.participant_detail),
+    url(r'^participant/$', views.participant_list),
+    url(r'^statistics/$', views.show_statistics),
+]
 
