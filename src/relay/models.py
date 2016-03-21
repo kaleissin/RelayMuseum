@@ -302,6 +302,8 @@ class TorchFile(models.Model):
             ('recording', 'Recording'),
             ('orthopgraphy', 'Native orthopgraphy'),
             ('print', 'Printable version'),
+            ('pronunciation-ascii', 'Pronunciation (ASCII)'),
+            ('pronunciation-ipa', 'Pronunciation (IPA)'),
     )
 
     def upload_to(self, filename):
