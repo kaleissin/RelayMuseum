@@ -32,4 +32,10 @@ class ParticipantAdmin(admin.ModelAdmin):
     list_display = ('name', 'cals_user')
 admin.site.register(Participant, ParticipantAdmin)
 
+class TorchFileAdmin(admin.ModelAdmin):
+    model = TorchFile
+    list_display = ['category', 'torch', 'filename', 'mimetype']
+    list_filter = ['category', 'mimetype']
+admin.site.register(TorchFile, TorchFileAdmin)
+
 admin.site.register(Language)
