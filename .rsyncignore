@@ -7,4 +7,5 @@ Attic
 *.bak
 *.pyc
 *.sw?
+*.egg-info
 __pycache__
