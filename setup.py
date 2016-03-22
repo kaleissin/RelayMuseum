@@ -10,7 +10,7 @@ finally:
     README_FILE.close()
 
 setup(name='RelayMuseum',
-        version='0.1.0',
+        version='0.2.0',
         packages=['relay', 'RelayMuseum'],
         package_dir={'': 'src'},
         include_package_data=True,
