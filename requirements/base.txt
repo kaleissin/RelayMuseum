@@ -1,3 +1,4 @@
 Django<1.9
 Interlinears>=0.1
 nano
+django-activity-stream<0.7
