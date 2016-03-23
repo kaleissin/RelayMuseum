@@ -304,6 +304,7 @@ class TorchFile(models.Model):
             ('print', 'Printable version'),
             ('pronunciation-ascii', 'Pronunciation (ASCII)'),
             ('pronunciation-ipa', 'Pronunciation (IPA)'),
+            ('notes', 'Other notes'),
     )
 
     def upload_to(self, filename):
