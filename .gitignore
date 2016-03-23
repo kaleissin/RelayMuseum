@@ -1,7 +1,10 @@
-RelayMuseum/settings_local.py
 .svn
 *.pyc
-*.swp
+*.bak
+*.sw?
+*.egg-info
 build
 dist
 MANIFEST
+Attic
+__pycache__
