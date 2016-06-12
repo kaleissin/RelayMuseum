@@ -201,7 +201,7 @@ class Ring(models.Model):
         if not self.ring_master:
             self.ring_master = self.relay.relay_master
         if self.name != '_':
-            slug = slugify(self.name)
+            self.slug = slugify(self.name)
         super(Ring, self).save(*args, **kwargs)
 
     @property
