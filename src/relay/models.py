@@ -86,7 +86,7 @@ class Participant(UniqueSlugModel):
             relays[ring.relay.name].append(ring)
         out = []
         for relayname, rings in relays.items():
-            relay = Relay.objects.get(name=relayname) 
+            relay = Relay.objects.get(name=relayname)
             if relay.rings.count() == len(rings):
                 out.append(relay)
             else:
@@ -123,14 +123,16 @@ class Language(UniqueSlugModel):
 
 class Relay(UniqueSlugModel):
     RELAY_SUBTYPES = (
-            ('standard', 'Standard'),
-            ('inverse', 'Inverse'),
-            )
+        ('standard', 'Standard'),
+        ('inverse', 'Inverse'),
+    )
     name = models.CharField(max_length=40)
     relay_master = models.ForeignKey(Participant, related_name='relay_mastering')
-    subtype = models.CharField(max_length=20, 
-            choices=RELAY_SUBTYPES,
-            default='standard')
+    subtype = models.CharField(
+        max_length=20,
+        choices=RELAY_SUBTYPES,
+        default='standard'
+    )
     homepage = models.URLField(blank=True, null=True)
     rules = models.TextField('Rules specific to this relay', blank=True, null=True)
     notes = models.TextField('Additional notes', blank=True, null=True)
@@ -170,14 +172,15 @@ class Relay(UniqueSlugModel):
 
 class Ring(models.Model):
     RING_SUBTYPES = (
-            ('standard', 'Standard'),
-            ('romance', 'Romance'),
-            )
+        ('standard', 'Standard'),
+        ('romance', 'Romance'),
+    )
     relay = models.ForeignKey(Relay, related_name='rings')
     ring_master = models.ForeignKey(Participant, blank=True, null=True, related_name='ring_mastering')
     name = models.CharField(max_length=10, default='_')
     slug = models.SlugField(blank=True, null=True, default='_')
-    subtype = models.CharField(max_length=20, 
+    subtype = models.CharField(
+        max_length=20,
         choices=RING_SUBTYPES,
         default='standard')
     end = models.DateTimeField(blank=True, null=True)
@@ -220,31 +223,40 @@ class Torch(models.Model):
     last = models.BooleanField(default=False)
     pos = models.IntegerField('position', default=0)
 #     torch_title = models.CharField(max_length=128,
-#             blank=True,null=True,
-#             help_text='Title, if any, of the torch')
+#         blank=True,null=True,
+#         help_text='Title, if any, of the torch'
+#     )
     torch = models.TextField(
-            help_text='The text that was sent to the next participant')
+        help_text='The text that was sent to the next participant'
+    )
 #     smooth_translation_title = models.CharField(max_length=128,
-#             blank=True,null=True,
-#             help_text='Title, if any, of the smooth translation')
+#         blank=True,null=True,
+#         help_text='Title, if any, of the smooth translation'
+#     )
     smooth_translation = models.TextField(
-            blank=True, null=True,
-            help_text='Smooth English translation of the torch sent')
+        blank=True, null=True,
+        help_text='Smooth English translation of the torch sent'
+    )
 #     translation_of_received_title = models.CharField(max_length=128,
-#             blank=True,null=True,
-#             help_text='Title, if any, of the translation of the received text')
+#         blank=True,null=True,
+#         help_text='Title, if any, of the translation of the received text'
+#     )
     translation_of_received = models.TextField(
-            blank=True, null=True,
-            help_text='Translation of the torch received')
+        blank=True, null=True,
+        help_text='Translation of the torch received'
+    )
     mini_dictionary = models.TextField(
-            blank=True, null=True,
-            help_text='Mini dictionary covering the expressions, words and affixes in the torch')
+        blank=True, null=True,
+        help_text='Mini dictionary covering the expressions, words and affixes in the torch'
+    )
     mini_grammar = models.TextField(
-            blank=True, null=True,
-            help_text='Mini grammar covering the phenomena in the torch')
+        blank=True, null=True,
+        help_text='Mini grammar covering the phenomena in the torch'
+    )
     abbreviations = models.TextField(
-            blank=True, null=True,
-            help_text='Abbreviations')
+        blank=True, null=True,
+        help_text='Abbreviations'
+    )
     interlinear = models.TextField('Interlinear', blank=True, null=True, default='', db_column='il_text')
     il_xhtml = models.TextField('Interlinear, formatted', blank=True, null=True, default='', db_column='il_xhtml', editable=False)
     il_format = models.CharField('Interlinear format', max_length=20, choices=INTERLINEAR_FORMATS, blank=True, default='monospace')
@@ -298,13 +310,13 @@ class Torch(models.Model):
 
 class TorchFile(models.Model):
     CATEGORIES = (
-            ('alttorch', 'Alternate version'),
-            ('recording', 'Recording'),
-            ('orthopgraphy', 'Native orthopgraphy'),
-            ('print', 'Printable version'),
-            ('pronunciation-ascii', 'Pronunciation (ASCII)'),
-            ('pronunciation-ipa', 'Pronunciation (IPA)'),
-            ('notes', 'Other notes'),
+        ('alttorch', 'Alternate version'),
+        ('recording', 'Recording'),
+        ('orthopgraphy', 'Native orthopgraphy'),
+        ('print', 'Printable version'),
+        ('pronunciation-ascii', 'Pronunciation (ASCII)'),
+        ('pronunciation-ipa', 'Pronunciation (IPA)'),
+        ('notes', 'Other notes'),
     )
 
     def upload_to(self, filename):
