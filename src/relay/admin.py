@@ -24,6 +24,12 @@ class RingInline(admin.TabularInline):
     max_num = 6
 
 
+class RingAdmin(ActstreamMixin, admin.ModelAdmin):
+    model = Ring
+    list_filter = ['relay']
+admin.site.register(Ring, RingAdmin)
+
+
 class RelayAdmin(ActstreamMixin, admin.ModelAdmin):
     inlines = [RingInline,]
     ordering = ['pos', 'name']
