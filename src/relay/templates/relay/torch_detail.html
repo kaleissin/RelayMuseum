@@ -23,11 +23,11 @@
 {% endblock submenu %}
 {% block content %}
     <h2>{% if object.prev %}
-    <a href="/relay/{{ relay.slug }}/{{ ring.slug }}/{{ object.prev.id }}/">&lt; {{ object.prev.simple_name }}</a> 
+    <a href="/relay/{{ relay.slug }}/{{ ring.slug }}/{{ object.prev.id }}/">&lt; {{ object.prev.pos }}: {{ object.prev.simple_name }}</a> 
     {% endif %}
-    {{ object.simple_name }}  
+    {{ object.simple_name }}
     {% if object.next %}
-    <a href="/relay/{{ relay.slug }}/{{ ring.slug }}/{{ object.next.id }}/"> {{ object.next.simple_name }} &gt;</a>
+    <a href="/relay/{{ relay.slug }}/{{ ring.slug }}/{{ object.next.id }}/"> {{ object.next.pos }}: {{ object.next.simple_name }} &gt;</a>
     {% endif %}
     </h2>
     <table>

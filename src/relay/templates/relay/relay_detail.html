@@ -76,7 +76,7 @@
         <a href="/relay/{{ object.slug }}/{{ ring.slug }}/">{{ ring.name }}</a> ({{ ring.torches.count }} torch{{ ring.torches.count|pluralize:"es" }})
         {% if ring.torches.count %}
         <p>{% for torch in ring.torches.all %}
-        <a href="./{{ torch.ring.slug }}/{{ torch.id }}">{{ torch.language }}</a> 
+        <a href="./{{ torch.ring.slug }}/{{ torch.id }}">{{torch.pos }}: {{ torch.language }}</a>
         {% endfor %}</p>
         {% endif %}
         </li>
@@ -86,7 +86,7 @@
     {% else %}
     {% if rings.0.torches.count %}
     <p>{% for torch in rings.0.torches.all %}
-    <a href="./{{ torch.ring.slug }}/{{ torch.id }}">{{ torch.language }}</a> 
+    <a href="./{{ torch.ring.slug }}/{{ torch.id }}">{{torch.pos }}: {{ torch.language }}</a> 
     {% endfor %}</p>
     {% endif %}
     {% endifnotequal %}
