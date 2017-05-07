@@ -106,6 +106,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'actstream',
     'relay',
+    'calssync',
 ]
 
 # Internationalization
