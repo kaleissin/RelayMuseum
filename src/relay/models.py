@@ -7,14 +7,10 @@ from django.contrib.auth.models import User as CalsUser
 from django.utils.safestring import mark_for_escaping as _escape
 from django.utils.html import escape
 
-try:
-    from cals.models import Language as CalsLanguage
-except ImportError:
-    CalsLanguage = None
-
 from interlinears import make_html_interlinear
 
-__all__ = ('Participant', 'Language', 'Ring', 'Torch', 'Relay', 'TorchFile', 'CalsLanguage')
+
+__all__ = ('Participant', 'Language', 'Ring', 'Torch', 'Relay', 'TorchFile',)
 
 
 def re_slugify(queryset):
@@ -95,24 +91,14 @@ class Participant(UniqueSlugModel):
 
 
 class Language(UniqueSlugModel):
-    if CalsLanguage:
-        cals_language = models.ForeignKey(CalsLanguage, null=True, blank=True, related_name='relays')
     name = models.CharField(max_length=100, null=True, blank=True, unique=True)
 
     class Meta:
         ordering = ['name']
-        if CalsLanguage:
-            unique_together = ('cals_language', 'name', 'slug')
-        else:
-            unique_together = ('name', 'slug')
+        unique_together = ('name', 'slug')
 
     def __str__(self):
         return self.name
-
-    def save(self, *args, **kwargs):
-        if not self.name and self.cals_language:
-            self.name = self.cals_language.name
-        super(Language, self).save(*args, **kwargs)
 
     def relays(self):
         return Relay.objects.filter(id__in=[torch.relay.id for torch in self.torches.all()])
