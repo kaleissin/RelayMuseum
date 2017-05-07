@@ -250,8 +250,7 @@ class Torch(models.Model):
     class Meta:
         verbose_name_plural = 'torches'
         unique_together = ('relay', 'ring', 'pos')
-        #ordering = ('ring', 'pos',)
-        order_with_respect_to = 'ring'
+        ordering = ('relay', 'ring', 'pos',)
 
     def __str__(self):
         return u'%s by %s' % (self.language.name, self.participant.name)
